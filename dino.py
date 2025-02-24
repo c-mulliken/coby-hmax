@@ -29,9 +29,9 @@ def parse_args():
     parser.add_argument('--freeze_last_layer', type=int, default=1)
     
     # data augmenation params
-    parser.add_argument('--global_crops_scale', type=float, nargs=+, default=(0.4, 1.))
+    parser.add_argument('--global_crops_scale', type=float, nargs='+', default=(0.4, 1.))
     parser.add_argument('--local_crops_number', type=int, default=8)
-    parser.add_argument('--local_crops_scale', type=float, nargs=+, default=(0.05, 0.4))
+    parser.add_argument('--local_crops_scale', type=float, nargs='+', default=(0.05, 0.4))
 
     # misc
     parser.add_argument('--seed', type=int, default=0)
