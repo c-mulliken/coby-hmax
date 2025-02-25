@@ -1,10 +1,12 @@
 import argparse
+import utils
 
 import torch
 import torch.nn as nn
 from torchvision import datasets, transforms
 from torchvision import models
 from torch.utils.data import DataLoader
+from PIL import Image
 
 def parse_args():
     parser = argparse.ArgumentParser('DINO', add_help=False)
@@ -39,6 +41,38 @@ def parse_args():
     parser.add_argument('--output_dir', type=str, default='output')
 
     return parser
+
+class DataAugment:
+    def __init__(self, global_crops_scale, local_crops_number, local_crops_scale):
+        flip_and_color_jitter = transforms.Compose([
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.RandomApply(
+                [transforms.ColorJitter(0.4, 0.4, 0.2, 0.1)], p=0.8
+            ),
+            transforms.RandomGrayscale(p=0.2)
+        ])
+        normalize = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+        ])
+
+        self.global_trans1 = transforms.Compose([
+            transforms.RandomResizedCrop(224, scale=global_crops_scale, interpolation=Image.BICUBIC),
+            flip_and_color_jitter,
+            utils.GaussianBlur(1.0),
+            normalize
+        ])
+
+        self.global_trans2 = transforms.Compose([
+            transforms.RandomResizedCrop(224, scale=global_crops_scale, interpolation=Image.BICUBIC),
+            flip_and_color_jitter,
+            utils.GaussianBlur(0.1),
+            utils.Solarization(0.2),
+            normalize
+        ])
+
+        
+
 
 def train_dino(args):
     student = models.resnet50()
